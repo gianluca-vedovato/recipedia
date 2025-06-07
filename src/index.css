@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Noto Sans", sans-serif;
 
   color-scheme: light dark;
 
@@ -49,7 +49,6 @@
 body {
   margin: 0;
   display: flex;
-  place-items: center;
   min-height: 100vh;
 }
 
@@ -132,4 +131,12 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

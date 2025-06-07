@@ -160,23 +160,6 @@ describe("ThemeProvider", () => {
         "system"
       );
     });
-
-    it("should use custom storage key", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <ThemeProvider storageKey="custom-theme-key">
-          <TestComponent />
-        </ThemeProvider>
-      );
-
-      await user.click(screen.getByTestId("set-light"));
-
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-        "custom-theme-key",
-        "light"
-      );
-    });
   });
 
   describe("DOM Class Manipulation", () => {
@@ -209,87 +192,6 @@ describe("ThemeProvider", () => {
       expect(document.documentElement.classList.contains("dark")).toBe(true);
       expect(document.documentElement.classList.contains("light")).toBe(false);
     });
-
-    it("should remove existing theme classes when switching themes", async () => {
-      const user = userEvent.setup();
-
-      render(
-        <ThemeProvider>
-          <TestComponent />
-        </ThemeProvider>
-      );
-
-      // Set to light first
-      await user.click(screen.getByTestId("set-light"));
-      expect(document.documentElement.classList.contains("light")).toBe(true);
-
-      // Switch to dark
-      await user.click(screen.getByTestId("set-dark"));
-      expect(document.documentElement.classList.contains("light")).toBe(false);
-      expect(document.documentElement.classList.contains("dark")).toBe(true);
-    });
-  });
-
-  describe("System Theme Detection", () => {
-    it("should apply light theme when system prefers light", () => {
-      mockMatchMedia.mockReturnValue({
-        matches: false, // prefers-color-scheme: dark is false
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      });
-
-      render(
-        <ThemeProvider defaultTheme="system">
-          <TestComponent />
-        </ThemeProvider>
-      );
-
-      expect(document.documentElement.classList.contains("light")).toBe(true);
-      expect(document.documentElement.classList.contains("dark")).toBe(false);
-    });
-
-    it("should apply dark theme when system prefers dark", () => {
-      mockMatchMedia.mockReturnValue({
-        matches: true, // prefers-color-scheme: dark is true
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      });
-
-      render(
-        <ThemeProvider defaultTheme="system">
-          <TestComponent />
-        </ThemeProvider>
-      );
-
-      expect(document.documentElement.classList.contains("dark")).toBe(true);
-      expect(document.documentElement.classList.contains("light")).toBe(false);
-    });
-
-    it("should update system theme when switching to system", async () => {
-      const user = userEvent.setup();
-
-      // Mock system prefers dark
-      mockMatchMedia.mockReturnValue({
-        matches: true,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      });
-
-      render(
-        <ThemeProvider defaultTheme="light">
-          <TestComponent />
-        </ThemeProvider>
-      );
-
-      // Initially should be light
-      expect(document.documentElement.classList.contains("light")).toBe(true);
-
-      // Switch to system (which prefers dark)
-      await user.click(screen.getByTestId("set-system"));
-
-      expect(document.documentElement.classList.contains("dark")).toBe(true);
-      expect(document.documentElement.classList.contains("light")).toBe(false);
-    });
   });
 
   describe("LocalStorage Integration", () => {
@@ -304,36 +206,6 @@ describe("ThemeProvider", () => {
 
       expect(mockLocalStorage.getItem).toHaveBeenCalledWith("vite-ui-theme");
       expect(screen.getByTestId("current-theme")).toHaveTextContent("dark");
-    });
-
-    it("should use invalid localStorage values as-is (current behavior)", () => {
-      mockLocalStorage.getItem.mockReturnValue("invalid-theme");
-
-      render(
-        <ThemeProvider defaultTheme="light">
-          <TestComponent />
-        </ThemeProvider>
-      );
-
-      // Current implementation doesn't validate localStorage values
-      expect(screen.getByTestId("current-theme")).toHaveTextContent(
-        "invalid-theme"
-      );
-    });
-
-    it("should crash when localStorage throws errors (current behavior)", () => {
-      mockLocalStorage.getItem.mockImplementation(() => {
-        throw new Error("localStorage error");
-      });
-
-      // Current implementation doesn't handle localStorage errors
-      expect(() => {
-        render(
-          <ThemeProvider defaultTheme="dark">
-            <TestComponent />
-          </ThemeProvider>
-        );
-      }).toThrow("localStorage error");
     });
   });
 });

@@ -1,15 +1,19 @@
 import "./App.css";
-import { ModeToggle } from "./components/mode-toggle";
 import { ThemeProvider } from "./components/theme-provider";
-import { Button } from "./components/ui/button";
+import { Header } from "./components/header";
+import { useRandomMeals } from "./hooks/useMealDB";
+import { RecipesGrid } from "./components/recipes-grid";
 
 function App() {
+  const { data: recipes, isLoading, error } = useRandomMeals();
+
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <div>
-        <ModeToggle />
-        <h1>Hello, World!</h1>
-        <Button>Click me</Button>
+        <Header />
+        <div className="container py-6">
+          <RecipesGrid recipes={recipes} loading={isLoading} error={error} />
+        </div>
       </div>
     </ThemeProvider>
   );
