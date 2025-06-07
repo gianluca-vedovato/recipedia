@@ -2,6 +2,23 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { RecipeCardSmall } from "./recipe-card-small";
 
+// Mock TanStack Router
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    children,
+    to,
+    ...props
+  }: {
+    children: React.ReactNode;
+    to: string;
+    [key: string]: unknown;
+  }) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 const mockRecipeData = {
   id: "recipe-1",
   name: "Delicious Pasta",

@@ -71,7 +71,7 @@ export function SearchResults({ searchTerm, isOpen }: SearchResultsProps) {
       {/* Recently viewed section - only show when there are recently viewed items and no search term */}
       {recentlyViewed.length > 0 && !searchTerm && (
         <div className="flex flex-col gap-2 mb-4">
-          <h2 className="text-sm font-bold text-primary">Most Popular</h2>
+          <h2 className="text-sm font-bold text-primary">Recently Viewed</h2>
           <div className="grid grid-cols-2 gap-2">
             {recentlyViewed.map(
               (meal: { id: string; name: string; image: string }) => (

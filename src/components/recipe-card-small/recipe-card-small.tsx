@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
   RecipeCardSmallContent,
   RecipeCardSmallImage,
@@ -10,15 +11,21 @@ type RecipeCardSmallProps = {
   image: string;
 };
 
-export function RecipeCardSmall({ name, image }: RecipeCardSmallProps) {
+export function RecipeCardSmall({ id, name, image }: RecipeCardSmallProps) {
   return (
-    <RecipeCardSmallWrapper>
-      <RecipeCardSmallImage>
-        <img src={image} alt={name} className="w-full h-full object-cover" />
-      </RecipeCardSmallImage>
-      <RecipeCardSmallContent>
-        <p className="text-sm font-medium">{name}</p>
-      </RecipeCardSmallContent>
-    </RecipeCardSmallWrapper>
+    <Link
+      to="/recipe/$id"
+      params={{ id }}
+      className="hover:opacity-80 transition-opacity"
+    >
+      <RecipeCardSmallWrapper>
+        <RecipeCardSmallImage>
+          <img src={image} alt={name} className="w-full h-full object-cover" />
+        </RecipeCardSmallImage>
+        <RecipeCardSmallContent>
+          <p className="text-sm font-medium">{name}</p>
+        </RecipeCardSmallContent>
+      </RecipeCardSmallWrapper>
+    </Link>
   );
 }

@@ -4,6 +4,23 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SearchResults } from "./search-results";
 import type { ProcessedRecipe } from "@/hooks/useMealDB";
 
+// Mock TanStack Router
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    children,
+    to,
+    ...props
+  }: {
+    children: React.ReactNode;
+    to: string;
+    [key: string]: unknown;
+  }) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 // Mock the hooks
 const mockUseMostPopularMeals = vi.fn();
 const mockUseSearchMeals = vi.fn();
@@ -275,9 +292,9 @@ describe("SearchResults", () => {
 
       renderWithQueryClient(<SearchResults searchTerm="" isOpen={true} />);
 
-      // Should show two "Most Popular" headers - one for recently viewed section, one for main section
-      const headers = screen.getAllByText("Most Popular");
-      expect(headers.length).toBe(2);
+      // Should show "Recently Viewed" header and "Most Popular" header
+      expect(screen.getByText("Recently Viewed")).toBeInTheDocument();
+      expect(screen.getByText("Most Popular")).toBeInTheDocument();
     });
 
     it("should only show main section when recentlyViewed is empty", () => {

@@ -2,6 +2,23 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { RecipeCard } from "./recipe-card";
 
+// Mock TanStack Router
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({
+    children,
+    to,
+    ...props
+  }: {
+    children: React.ReactNode;
+    to: string;
+    [key: string]: unknown;
+  }) => (
+    <a href={to} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 // Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
@@ -240,7 +257,7 @@ describe("RecipeCard", () => {
 
       const link = screen.getByRole("link");
       expect(link).toBeInTheDocument();
-      expect(link).toHaveAttribute("href", "#");
+      expect(link).toHaveAttribute("href", "/recipe/$id");
     });
   });
 

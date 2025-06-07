@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { Link } from "@tanstack/react-router";
 import {
   RecipeCardContent,
   RecipeCardImage,
@@ -45,8 +46,9 @@ export function RecipeCard({
   };
 
   return (
-    <a
-      href="#"
+    <Link
+      to="/recipe/$id"
+      params={{ id }}
       className="hover:-translate-y-0.5 hover:opacity-80 transition-all duration-300"
     >
       <RecipeCardWrapper>
@@ -86,6 +88,6 @@ export function RecipeCard({
           </p>
         </RecipeCardContent>
       </RecipeCardWrapper>
-    </a>
+    </Link>
   );
 }

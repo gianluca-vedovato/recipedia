@@ -3,6 +3,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+#root {
+  width: 100%;
+}
+
 :root {
   font-family: "Noto Sans", sans-serif;
 
