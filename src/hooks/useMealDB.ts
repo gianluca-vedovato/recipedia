@@ -106,6 +106,7 @@ const processMeal = (recipe: Recipe): ProcessedRecipe => {
 
 // API functions
 const fetchRecipesByName = async (name: string): Promise<ProcessedRecipe[]> => {
+  console.log(name);
   const response = await fetch(
     `${BASE_URL}/search.php?s=${encodeURIComponent(name)}`
   );
@@ -164,12 +165,39 @@ const fetchRandomRecipes = async (): Promise<ProcessedRecipe[]> => {
   return allMeals.map(processMeal);
 };
 
+const fetchMostPopularRecipes = async (): Promise<ProcessedRecipe[]> => {
+  // Hardcoded for testing purposes
+  const MOST_POPULAR_RECIPES_IDS = [52982, 52806, 53014, 52995];
+
+  const promises = MOST_POPULAR_RECIPES_IDS.map((id) =>
+    fetch(`${BASE_URL}/lookup.php?i=${encodeURIComponent(id.toString())}`).then(
+      (response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      }
+    )
+  );
+
+  const results = await Promise.all(promises);
+
+  const allMeals: Recipe[] = [];
+  results.forEach((data: MealDBResponse) => {
+    if (data.meals && data.meals.length > 0) {
+      allMeals.push(data.meals[0]);
+    }
+  });
+
+  return allMeals.map(processMeal);
+};
+
 // React Query hooks
 export const useSearchMeals = (name: string, enabled: boolean = true) => {
   return useQuery({
     queryKey: ["meals", "search", name.toLowerCase()],
     queryFn: () => fetchRecipesByName(name),
-    enabled: enabled && name.trim().length > 0,
+    enabled: enabled && name.trim().length > 2,
     staleTime: 1000 * 60 * 30, // 30 minutes
     gcTime: 1000 * 60 * 60, // 1 hour (formerly cacheTime)
   });
@@ -191,6 +219,13 @@ export const useRandomMeals = () => {
     queryFn: fetchRandomRecipes,
     staleTime: 1000 * 60 * 15, // 15 minutes
     gcTime: 1000 * 60 * 30, // 30 minutes
+  });
+};
+
+export const useMostPopularMeals = () => {
+  return useQuery({
+    queryKey: ["meals", "most-popular"],
+    queryFn: fetchMostPopularRecipes,
   });
 };
 
