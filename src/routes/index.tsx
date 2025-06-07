@@ -15,7 +15,13 @@ function Index() {
       <div className="w-full">
         <SearchInput />
       </div>
-      <RecipesGrid recipes={recipes || []} loading={isLoading} error={error} />
+      <div className="w-full">
+        <RecipesGrid
+          recipes={recipes || []}
+          loading={isLoading}
+          error={error}
+        />
+      </div>
     </div>
   );
 }

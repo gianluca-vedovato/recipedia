@@ -3,12 +3,26 @@ import { SearchIcon } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { SearchResults } from "./search-results";
 import { cn } from "@/lib/utils";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 
-export function SearchInput() {
+export function SearchInput({ defaultValue }: { defaultValue?: string }) {
   const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState(defaultValue || "");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const router = useRouter();
+
+  // Preload the search route
+  useEffect(() => {
+    router.preloadRoute({
+      to: "/search",
+      search: {
+        q: debouncedSearchTerm,
+      },
+    });
+  }, [router, debouncedSearchTerm]);
 
   // Debounce the search term
   useEffect(() => {
@@ -35,8 +49,12 @@ export function SearchInput() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Search submitted:", searchTerm);
-    setOpen(true);
+    navigate({
+      to: "/search",
+      search: {
+        q: searchTerm,
+      },
+    });
   };
 
   return (

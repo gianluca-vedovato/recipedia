@@ -1,7 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useMealById } from "@/hooks/useMealDB";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -28,20 +26,7 @@ export const Route = createFileRoute("/recipe/$id")({
 
 function RecipeDetailRoute() {
   const { id } = Route.useParams();
-  const queryClient = useQueryClient();
   const { data: recipe, isLoading, error } = useMealById(id);
-
-  // Prefetch related recipes when component mounts
-  useEffect(() => {
-    if (recipe?.category) {
-      // Prefetch recipes from the same category (you can implement this hook later)
-      // queryClient.prefetchQuery({
-      //   queryKey: ["meals", "category", recipe.category],
-      //   queryFn: () => fetchRecipesByCategory(recipe.category),
-      //   staleTime: 1000 * 60 * 30, // 30 minutes
-      // });
-    }
-  }, [recipe?.category, queryClient]);
 
   if (isLoading) {
     return <RecipeDetailSkeleton />;
