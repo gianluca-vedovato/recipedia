@@ -30,17 +30,19 @@ vi.mock("@/hooks/useMealDB", () => ({
   useSearchMeals: (searchTerm: string) => mockUseSearchMeals(searchTerm),
 }));
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
+// Mock useStorage hook
+const mockGetItem = vi.fn();
 
-Object.defineProperty(window, "localStorage", {
-  value: localStorageMock,
-});
+vi.mock("@/hooks/useLocalStorage", () => ({
+  useStorage: () => ({
+    storage: {},
+    isAvailable: true,
+    getItem: mockGetItem,
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
+  }),
+}));
 
 // Create a test QueryClient
 const createTestQueryClient = () =>
@@ -112,7 +114,7 @@ const mockRecentlyViewed = [
 describe("SearchResults", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorageMock.getItem.mockReturnValue(null);
+    mockGetItem.mockReturnValue(null);
 
     // Default mock implementations
     mockUseMostPopularMeals.mockReturnValue({
@@ -219,18 +221,16 @@ describe("SearchResults", () => {
   });
 
   describe("Recently Viewed Integration", () => {
-    it("should load recently viewed items from localStorage", () => {
-      localStorageMock.getItem.mockReturnValue(
-        JSON.stringify(mockRecentlyViewed)
-      );
+    it("should load recently viewed items from storage", () => {
+      mockGetItem.mockReturnValue(JSON.stringify(mockRecentlyViewed));
 
       renderWithQueryClient(<SearchResults searchTerm="" isOpen={true} />);
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith("recentlyViewed");
+      expect(mockGetItem).toHaveBeenCalledWith("recipedia:recentlyviewed");
     });
 
-    it("should handle empty localStorage gracefully", () => {
-      localStorageMock.getItem.mockReturnValue(null);
+    it("should handle empty storage gracefully", () => {
+      mockGetItem.mockReturnValue(null);
 
       renderWithQueryClient(<SearchResults searchTerm="" isOpen={true} />);
 
@@ -239,7 +239,7 @@ describe("SearchResults", () => {
     });
 
     it("should handle malformed JSON gracefully without throwing", () => {
-      localStorageMock.getItem.mockReturnValue("invalid json");
+      mockGetItem.mockReturnValue("invalid json");
 
       // Should handle error gracefully and still render without throwing
       expect(() => {
@@ -286,9 +286,7 @@ describe("SearchResults", () => {
 
   describe("Conditional Content Display", () => {
     it("should show recently viewed section when recentlyViewed is not empty", () => {
-      localStorageMock.getItem.mockReturnValue(
-        JSON.stringify(mockRecentlyViewed)
-      );
+      mockGetItem.mockReturnValue(JSON.stringify(mockRecentlyViewed));
 
       renderWithQueryClient(<SearchResults searchTerm="" isOpen={true} />);
 
@@ -298,7 +296,7 @@ describe("SearchResults", () => {
     });
 
     it("should only show main section when recentlyViewed is empty", () => {
-      localStorageMock.getItem.mockReturnValue("[]");
+      mockGetItem.mockReturnValue("[]");
 
       renderWithQueryClient(<SearchResults searchTerm="" isOpen={true} />);
 

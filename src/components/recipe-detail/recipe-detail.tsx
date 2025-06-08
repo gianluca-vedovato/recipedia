@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Heart, ExternalLink, Youtube, ArrowLeft } from "lucide-react";
@@ -21,64 +21,52 @@ import {
   RecipeDetailIngredientItem,
   RecipeDetailInstructions,
 } from "./recipe-detail.layout";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useStorage } from "@/hooks/useLocalStorage";
 
 type RecipeDetailProps = {
   recipe: ProcessedRecipe;
 };
 
 export function RecipeDetail({ recipe }: RecipeDetailProps) {
+  const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
+  const { getItem, setItem } = useStorage();
+
+  const isFavorite = useMemo(
+    () => checkIsFavorite(recipe.id),
+    [checkIsFavorite, recipe.id]
+  );
+
+  /*
+   * Add the recipe to the recently viewed list
+   * If the recipe is already in the list, remove it and add it to the top
+   * If the list is full, remove the last item
+   */
   useEffect(() => {
-    try {
-      const recentlyViewed = localStorage.getItem("recentlyViewed");
-      const newRecentlyViewed = JSON.parse(recentlyViewed || "[]");
+    const recentlyViewed = getItem("recipedia:recentlyviewed");
+    const newRecentlyViewed = JSON.parse(recentlyViewed || "[]");
 
-      if (
-        !newRecentlyViewed.find(
-          (item: { name: string; id: string; image: string }) =>
-            item.id === recipe.id
-        )
-      ) {
-        newRecentlyViewed.unshift({
-          name: recipe.name,
-          id: recipe.id,
-          image: recipe.image,
-        });
-      }
-
-      if (newRecentlyViewed.length > 4) {
-        newRecentlyViewed.pop();
-      }
-
-      localStorage.setItem("recentlyViewed", JSON.stringify(newRecentlyViewed));
-    } catch {
-      // Silently fail if localStorage is not available
+    if (
+      !newRecentlyViewed.find(
+        (item: { name: string; id: string; image: string }) =>
+          item.id === recipe.id
+      )
+    ) {
+      newRecentlyViewed.unshift({
+        name: recipe.name,
+        id: recipe.id,
+        image: recipe.image,
+      });
     }
+
+    if (newRecentlyViewed.length > 4) {
+      newRecentlyViewed.pop();
+    }
+
+    setItem("recipedia:recentlyviewed", JSON.stringify(newRecentlyViewed));
   }, [recipe]);
 
-  const [isFavorite, setIsFavorite] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`favorite-${recipe.id}`);
-      return saved === "true";
-    } catch {
-      return false;
-    }
-  });
-
   const [imageError, setImageError] = useState(false);
-
-  const toggleFavorite = () => {
-    const newFavoriteState = !isFavorite;
-    setIsFavorite(newFavoriteState);
-
-    try {
-      localStorage.setItem(
-        `favorite-${recipe.id}`,
-        newFavoriteState.toString()
-      );
-    } catch {
-      // Silently fail if localStorage is not available
-    }
-  };
 
   return (
     <RecipeDetailWrapper>
@@ -112,7 +100,11 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
 
           {/* Action buttons */}
           <RecipeDetailActions>
-            <Button variant="outline" size="sm" onClick={toggleFavorite}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toggleFavorite(recipe.id)}
+            >
               <Heart
                 className={`mr-2 h-4 w-4 ${isFavorite ? "fill-red-500 text-red-500" : ""}`}
               />

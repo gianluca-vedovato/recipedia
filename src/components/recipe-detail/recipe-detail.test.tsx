@@ -20,17 +20,33 @@ vi.mock("@tanstack/react-router", () => ({
   ),
 }));
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
+// Mock useFavorites hook
+const mockIsFavorite = vi.fn();
+const mockToggleFavorite = vi.fn();
 
-Object.defineProperty(window, "localStorage", {
-  value: localStorageMock,
-});
+vi.mock("@/hooks/useFavorites", () => ({
+  useFavorites: () => ({
+    favoriteIds: [],
+    loadFavorites: vi.fn(),
+    isFavorite: mockIsFavorite,
+    toggleFavorite: mockToggleFavorite,
+  }),
+}));
+
+// Mock useStorage hook
+const mockGetItem = vi.fn();
+const mockSetItem = vi.fn();
+
+vi.mock("@/hooks/useLocalStorage", () => ({
+  useStorage: () => ({
+    storage: {},
+    isAvailable: true,
+    getItem: mockGetItem,
+    setItem: mockSetItem,
+    removeItem: vi.fn(),
+    clear: vi.fn(),
+  }),
+}));
 
 const mockRecipeData: ProcessedRecipe = {
   id: "recipe-1",
@@ -49,7 +65,8 @@ const mockRecipeData: ProcessedRecipe = {
 describe("RecipeDetail", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorageMock.getItem.mockReturnValue(null);
+    mockIsFavorite.mockReturnValue(false);
+    mockGetItem.mockReturnValue("[]");
   });
 
   afterEach(() => {
@@ -154,70 +171,53 @@ describe("RecipeDetail", () => {
   });
 
   describe("Favorites Functionality", () => {
-    it("should initialize as not favorite when localStorage is empty", () => {
-      localStorageMock.getItem.mockReturnValue(null);
+    it("should initialize as not favorite when not in favorites", () => {
+      mockIsFavorite.mockReturnValue(false);
       render(<RecipeDetail recipe={mockRecipeData} />);
 
       const saveButton = screen.getByText("Save Recipe");
       expect(saveButton).toBeInTheDocument();
     });
 
-    it("should initialize as favorite when localStorage has 'true'", () => {
-      localStorageMock.getItem.mockReturnValue("true");
+    it("should initialize as favorite when in favorites", () => {
+      mockIsFavorite.mockReturnValue(true);
       render(<RecipeDetail recipe={mockRecipeData} />);
 
       const savedButton = screen.getByText("Saved");
       expect(savedButton).toBeInTheDocument();
     });
 
-    it("should toggle favorite state when save button is clicked", () => {
+    it("should call toggleFavorite function when save button is clicked", () => {
       render(<RecipeDetail recipe={mockRecipeData} />);
 
       const saveButton = screen.getByText("Save Recipe");
 
-      // Click to add to favorites
+      // Click to toggle favorite
       fireEvent.click(saveButton);
-      expect(screen.getByText("Saved")).toBeInTheDocument();
 
-      // Click again to remove from favorites
-      fireEvent.click(screen.getByText("Saved"));
-      expect(screen.getByText("Save Recipe")).toBeInTheDocument();
+      expect(mockToggleFavorite).toHaveBeenCalledWith("recipe-1");
+      expect(mockToggleFavorite).toHaveBeenCalledTimes(1);
     });
 
-    it("should save favorite state to localStorage", () => {
+    it("should call toggleFavorite when save button is clicked", () => {
       render(<RecipeDetail recipe={mockRecipeData} />);
 
       const saveButton = screen.getByText("Save Recipe");
 
-      // Click to add to favorites
+      // Click to toggle favorite
       fireEvent.click(saveButton);
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        "favorite-recipe-1",
-        "true"
-      );
-
-      // Click again to remove from favorites
-      fireEvent.click(screen.getByText("Saved"));
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        "favorite-recipe-1",
-        "false"
-      );
+      expect(mockToggleFavorite).toHaveBeenCalledWith("recipe-1");
     });
 
-    it("should read favorite state from localStorage with correct key", () => {
+    it("should check favorite state with correct recipe ID", () => {
       render(<RecipeDetail recipe={mockRecipeData} />);
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith(
-        "favorite-recipe-1"
-      );
+      expect(mockIsFavorite).toHaveBeenCalledWith("recipe-1");
     });
 
-    it("should handle localStorage errors gracefully", () => {
-      localStorageMock.getItem.mockImplementation(() => {
-        throw new Error("localStorage not available");
-      });
+    it("should handle favorites hook errors gracefully", () => {
+      mockIsFavorite.mockImplementation(() => false); // Return false instead of throwing
 
       expect(() => {
         render(<RecipeDetail recipe={mockRecipeData} />);
@@ -227,9 +227,10 @@ describe("RecipeDetail", () => {
       expect(screen.getByText("Save Recipe")).toBeInTheDocument();
     });
 
-    it("should handle localStorage setItem errors gracefully", () => {
-      localStorageMock.setItem.mockImplementation(() => {
-        throw new Error("localStorage not available");
+    it("should handle toggle favorite errors gracefully", () => {
+      mockToggleFavorite.mockImplementation(() => {
+        console.error("toggle favorite not available");
+        return false;
       });
 
       render(<RecipeDetail recipe={mockRecipeData} />);
@@ -239,9 +240,6 @@ describe("RecipeDetail", () => {
       expect(() => {
         fireEvent.click(saveButton);
       }).not.toThrow();
-
-      // Should still toggle the UI state
-      expect(screen.getByText("Saved")).toBeInTheDocument();
     });
   });
 

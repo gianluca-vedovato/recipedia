@@ -2,6 +2,7 @@ import { useMostPopularMeals, useSearchMeals } from "@/hooks/useMealDB";
 import { RecipeCardSmall, RecipeCardSmallSkeleton } from "../recipe-card-small";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
+import { useStorage } from "@/hooks/useLocalStorage";
 
 interface SearchResultsProps {
   searchTerm: string;
@@ -9,15 +10,17 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ searchTerm, isOpen }: SearchResultsProps) {
+  const { getItem } = useStorage();
   const recentlyViewed = useMemo(() => {
     try {
-      const stored = localStorage.getItem("recentlyViewed");
+      const stored = getItem("recipedia:recentlyviewed");
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error("Failed to parse recently viewed items:", error);
+      console.warn("Failed to parse recently viewed items:", error);
       return [];
     }
-  }, []);
+  }, [getItem]);
+
   const { data: mostPopularMeals } = useMostPopularMeals();
   const { data: searchResults, isLoading } = useSearchMeals(searchTerm);
 

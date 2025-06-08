@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Heart } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Link } from "@tanstack/react-router";
@@ -7,6 +7,7 @@ import {
   RecipeCardImage,
   RecipeCardWrapper,
 } from "./recipe-card.layout";
+import { useFavorites } from "@/hooks/useFavorites";
 
 type RecipeCardProps = {
   id: string;
@@ -23,27 +24,11 @@ export function RecipeCard({
   image,
   ingredients,
 }: RecipeCardProps) {
-  const [isFavorite, setIsFavorite] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`favorite-${id}`);
-      return saved === "true";
-    } catch {
-      return false;
-    }
-  });
+  const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
+
+  const isFavorite = useMemo(() => checkIsFavorite(id), [checkIsFavorite, id]);
 
   const [imageError, setImageError] = useState(false);
-
-  const toggleFavorite = () => {
-    const newFavoriteState = !isFavorite;
-    setIsFavorite(newFavoriteState);
-
-    try {
-      localStorage.setItem(`favorite-${id}`, newFavoriteState.toString());
-    } catch {
-      // Silently fail if localStorage is not available
-    }
-  };
 
   return (
     <Link
@@ -67,14 +52,12 @@ export function RecipeCard({
             className="absolute top-2 right-2"
             onClick={(e) => {
               e.preventDefault();
-              toggleFavorite();
+              toggleFavorite(id);
             }}
           >
             <Heart
               fill={isFavorite ? "red" : "transparent"}
-              className={`transition-colors duration-200 ${
-                isFavorite ? "text-red-500" : "text-white"
-              }`}
+              className="transition-[colors, transform] transform cursor-pointer duration-200 hover:scale-110 text-white"
             />
           </button>
         </RecipeCardImage>

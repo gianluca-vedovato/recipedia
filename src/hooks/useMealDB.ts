@@ -142,35 +142,11 @@ const fetchRecipeById = async (id: string): Promise<ProcessedRecipe | null> => {
   return processMeal(data.meals[0]);
 };
 
-const fetchRandomRecipes = async (): Promise<ProcessedRecipe[]> => {
-  // Make 9 parallel calls to get random meals
-  const randomPromises = Array.from({ length: 9 }, () =>
-    fetch(`${BASE_URL}/random.php`).then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-  );
-
-  const results = await Promise.all(randomPromises);
-
-  const allMeals: Recipe[] = [];
-  results.forEach((data: MealDBResponse) => {
-    if (data.meals && data.meals.length > 0) {
-      allMeals.push(data.meals[0]);
-    }
-  });
-
-  return allMeals.map(processMeal);
-};
-
-const fetchMostPopularRecipes = async (): Promise<ProcessedRecipe[]> => {
-  // Hardcoded for testing purposes
-  const MOST_POPULAR_RECIPES_IDS = [52982, 52806, 53014, 52995];
-
-  const promises = MOST_POPULAR_RECIPES_IDS.map((id) =>
-    fetch(`${BASE_URL}/lookup.php?i=${encodeURIComponent(id.toString())}`).then(
+const fetchMultipleMealsById = async (
+  ids: string[]
+): Promise<ProcessedRecipe[]> => {
+  const promises = ids.map((id) =>
+    fetch(`${BASE_URL}/lookup.php?i=${encodeURIComponent(id)}`).then(
       (response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -179,17 +155,67 @@ const fetchMostPopularRecipes = async (): Promise<ProcessedRecipe[]> => {
       }
     )
   );
-
   const results = await Promise.all(promises);
-
   const allMeals: Recipe[] = [];
+
   results.forEach((data: MealDBResponse) => {
     if (data.meals && data.meals.length > 0) {
       allMeals.push(data.meals[0]);
     }
   });
 
-  return allMeals.map(processMeal);
+  return allMeals.filter((meal) => meal.idMeal).map(processMeal);
+};
+
+const fetchRandomRecipes = async (): Promise<ProcessedRecipe[]> => {
+  // TODO: This is a hack to get 9 random recipes. We should use the dedicated API to get 9 random recipes: www.themealdb.com/api/json/v1/1/randomselection.php (Premium Only)
+
+  const uniqueMeals = new Map<string, Recipe>();
+  const maxAttempts = 50; // Prevent infinite loops
+  let attempts = 0;
+
+  while (uniqueMeals.size < 9 && attempts < maxAttempts) {
+    // Calculate how many more recipes we need
+    const remainingNeeded = 9 - uniqueMeals.size;
+
+    // Make parallel calls for the remaining recipes needed (plus some extra to increase chances)
+    const batchSize = Math.min(remainingNeeded + 3, 9);
+
+    const randomPromises = Array.from({ length: batchSize }, () =>
+      fetch(`${BASE_URL}/random.php`).then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+    );
+
+    const results = await Promise.all(randomPromises);
+
+    // Add unique meals to our collection
+    results.forEach((data: MealDBResponse) => {
+      if (data.meals && data.meals.length > 0) {
+        const meal = data.meals[0];
+        if (!uniqueMeals.has(meal.idMeal)) {
+          uniqueMeals.set(meal.idMeal, meal);
+        }
+      }
+    });
+
+    attempts++;
+  }
+
+  // Convert map values to array and process
+  const allMeals = Array.from(uniqueMeals.values());
+  return allMeals.slice(0, 9).map(processMeal);
+};
+
+const fetchMostPopularRecipes = async (): Promise<ProcessedRecipe[]> => {
+  // Hardcoded for testing purposes
+  const MOST_POPULAR_RECIPES_IDS = ["52982", "52806", "53014", "52995"];
+
+  const recipes = await fetchMultipleMealsById(MOST_POPULAR_RECIPES_IDS);
+  return recipes;
 };
 
 // React Query hooks
@@ -208,6 +234,16 @@ export const useMealById = (id: string, enabled: boolean = true) => {
     queryKey: ["meals", "lookup", id],
     queryFn: () => fetchRecipeById(id),
     enabled: enabled && id.trim().length > 0,
+    staleTime: 1000 * 60 * 60, // 1 hour (meals don't change often)
+    gcTime: 1000 * 60 * 60 * 2, // 2 hours
+  });
+};
+
+export const useMultipleMealsById = (ids: string[]) => {
+  return useQuery({
+    queryKey: ["meals", "multiple", ids],
+    queryFn: () => fetchMultipleMealsById(ids),
+    enabled: ids.length > 0,
     staleTime: 1000 * 60 * 60, // 1 hour (meals don't change often)
     gcTime: 1000 * 60 * 60 * 2, // 2 hours
   });

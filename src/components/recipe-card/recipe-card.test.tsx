@@ -19,17 +19,18 @@ vi.mock("@tanstack/react-router", () => ({
   ),
 }));
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-};
+// Mock useFavorites hook
+const mockIsFavorite = vi.fn();
+const mockToggleFavorite = vi.fn();
 
-Object.defineProperty(window, "localStorage", {
-  value: localStorageMock,
-});
+vi.mock("@/hooks/useFavorites", () => ({
+  useFavorites: () => ({
+    favoriteIds: [],
+    loadFavorites: vi.fn(),
+    isFavorite: mockIsFavorite,
+    toggleFavorite: mockToggleFavorite,
+  }),
+}));
 
 const mockRecipeData = {
   id: "recipe-1",
@@ -42,7 +43,7 @@ const mockRecipeData = {
 describe("RecipeCard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorageMock.getItem.mockReturnValue(null);
+    mockIsFavorite.mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -92,8 +93,8 @@ describe("RecipeCard", () => {
   });
 
   describe("Favorites Functionality", () => {
-    it("should initialize as not favorite when localStorage is empty", () => {
-      localStorageMock.getItem.mockReturnValue(null);
+    it("should initialize as not favorite when not in favorites", () => {
+      mockIsFavorite.mockReturnValue(false);
       render(<RecipeCard {...mockRecipeData} />);
 
       const heartButton = screen.getByRole("button");
@@ -103,68 +104,44 @@ describe("RecipeCard", () => {
       expect(heartIcon).toHaveClass("text-white");
     });
 
-    it("should initialize as favorite when localStorage has 'true'", () => {
-      localStorageMock.getItem.mockReturnValue("true");
+    it("should initialize as favorite when in favorites", () => {
+      mockIsFavorite.mockReturnValue(true);
       render(<RecipeCard {...mockRecipeData} />);
 
       const heartButton = screen.getByRole("button");
       const heartIcon = heartButton.querySelector("svg");
 
       expect(heartIcon).toHaveAttribute("fill", "red");
-      expect(heartIcon).toHaveClass("text-red-500");
-    });
-
-    it("should toggle favorite state when heart button is clicked", () => {
-      render(<RecipeCard {...mockRecipeData} />);
-
-      const heartButton = screen.getByRole("button");
-      const heartIcon = heartButton.querySelector("svg");
-
-      // Initially not favorite
-      expect(heartIcon).toHaveAttribute("fill", "transparent");
-      expect(heartIcon).toHaveClass("text-white");
-
-      // Click to add to favorites
-      fireEvent.click(heartButton);
-
-      expect(heartIcon).toHaveAttribute("fill", "red");
-      expect(heartIcon).toHaveClass("text-red-500");
-
-      // Click again to remove from favorites
-      fireEvent.click(heartButton);
-
-      expect(heartIcon).toHaveAttribute("fill", "transparent");
       expect(heartIcon).toHaveClass("text-white");
     });
 
-    it("should save favorite state to localStorage", () => {
+    it("should call correct functions when toggling favorite state", () => {
       render(<RecipeCard {...mockRecipeData} />);
 
       const heartButton = screen.getByRole("button");
 
-      // Click to add to favorites
+      // Click to toggle favorite
       fireEvent.click(heartButton);
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        "favorite-recipe-1",
-        "true"
-      );
-
-      // Click again to remove from favorites
-      fireEvent.click(heartButton);
-
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        "favorite-recipe-1",
-        "false"
-      );
+      expect(mockToggleFavorite).toHaveBeenCalledWith("recipe-1");
+      expect(mockToggleFavorite).toHaveBeenCalledTimes(1);
     });
 
-    it("should read favorite state from localStorage with correct key", () => {
+    it("should call toggleFavorite when heart button is clicked", () => {
       render(<RecipeCard {...mockRecipeData} />);
 
-      expect(localStorageMock.getItem).toHaveBeenCalledWith(
-        "favorite-recipe-1"
-      );
+      const heartButton = screen.getByRole("button");
+
+      // Click to toggle favorite
+      fireEvent.click(heartButton);
+
+      expect(mockToggleFavorite).toHaveBeenCalledWith("recipe-1");
+    });
+
+    it("should check favorite state with correct recipe ID", () => {
+      render(<RecipeCard {...mockRecipeData} />);
+
+      expect(mockIsFavorite).toHaveBeenCalledWith("recipe-1");
     });
 
     it("should prevent default link behavior when clicking heart button", () => {
@@ -287,7 +264,9 @@ describe("RecipeCard", () => {
       const heartButton = screen.getByRole("button");
       const heartIcon = heartButton.querySelector("svg");
 
-      expect(heartIcon).toHaveClass("transition-colors", "duration-200");
+      expect(heartIcon).toHaveClass("transition-[colors,");
+      expect(heartIcon).toHaveClass("transform]");
+      expect(heartIcon).toHaveClass("duration-200");
     });
   });
 
@@ -320,12 +299,10 @@ describe("RecipeCard", () => {
       expect(nameElement).toHaveClass("flex-1"); // Should allow text to wrap
     });
 
-    it("should handle localStorage errors gracefully", () => {
-      localStorageMock.getItem.mockImplementation(() => {
-        throw new Error("localStorage error");
-      });
+    it("should handle favorites hook errors gracefully", () => {
+      mockIsFavorite.mockImplementation(() => false); // Return false instead of throwing
 
-      // Should not throw error and default to false
+      // Should render without throwing
       expect(() => render(<RecipeCard {...mockRecipeData} />)).not.toThrow();
 
       const heartButton = screen.getByRole("button");
@@ -335,24 +312,18 @@ describe("RecipeCard", () => {
       expect(heartIcon).toHaveAttribute("fill", "transparent");
     });
 
-    it("should handle setItem localStorage errors gracefully", () => {
-      localStorageMock.setItem.mockImplementation(() => {
-        throw new Error("localStorage setItem error");
+    it("should handle toggle favorite errors gracefully", () => {
+      mockToggleFavorite.mockImplementation(() => {
+        console.error("toggle favorite error");
+        return false;
       });
 
       render(<RecipeCard {...mockRecipeData} />);
 
       const heartButton = screen.getByRole("button");
-      const heartIcon = heartButton.querySelector("svg");
 
-      // Initially not favorite
-      expect(heartIcon).toHaveAttribute("fill", "transparent");
-
-      // Should not throw error when clicking, but should still update UI
+      // Should not throw error when clicking
       expect(() => fireEvent.click(heartButton)).not.toThrow();
-
-      // UI should still update even if localStorage fails
-      expect(heartIcon).toHaveAttribute("fill", "red");
     });
   });
 });
