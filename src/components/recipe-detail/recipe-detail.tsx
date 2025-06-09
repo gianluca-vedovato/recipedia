@@ -3,7 +3,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Heart, ExternalLink, SquarePlay, ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import type { ProcessedRecipe } from "@/hooks/useMealDB";
+import { useRelatedMeals, type ProcessedRecipe } from "@/hooks/useMealDB";
 import {
   RecipeDetailWrapper,
   RecipeDetailBackButton,
@@ -24,12 +24,17 @@ import {
 import { useFavorites } from "@/hooks/useFavorites";
 import { useStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils";
+import { RecipesGrid } from "@/components/recipes-grid";
 
 type RecipeDetailProps = {
   recipe: ProcessedRecipe;
 };
 
 export function RecipeDetail({ recipe }: RecipeDetailProps) {
+  const { data: relatedMeals, isLoading: relatedAreLoading } = useRelatedMeals(
+    recipe.category,
+    recipe.id
+  );
   const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
   const { getItem, setItem } = useStorage();
 
@@ -86,9 +91,10 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
         <RecipeDetailImageSection>
           <RecipeDetailImage>
             {imageError ? (
-              <div className="w-full h-full bg-orange-200 flex items-center justify-center text-gray-400">
-                <span>Image not available</span>
-              </div>
+              <div
+                className="w-full h-full bg-orange-200 flex items-center justify-center"
+                data-testid="recipe-detail-error-placeholder"
+              ></div>
             ) : (
               <img
                 src={recipe.image}
@@ -196,6 +202,20 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
           </RecipeDetailSection>
         </RecipeDetailInfoSection>
       </RecipeDetailContent>
+      {relatedMeals && relatedMeals.length > 0 && (
+        <div className="w-full py-6 lg:py-12 border-t border-border mt-6 lg:mt-10">
+          <div className="text-center mb-6 lg:mb-12">
+            <h2 className="text-xl font-bold text-center">
+              You might also like
+            </h2>
+          </div>
+          <RecipesGrid
+            recipes={relatedMeals}
+            loading={relatedAreLoading}
+            error={null}
+          />
+        </div>
+      )}
     </RecipeDetailWrapper>
   );
 }

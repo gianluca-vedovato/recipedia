@@ -61,6 +61,16 @@ export interface MealDBResponse {
   meals: Recipe[] | null;
 }
 
+export interface FilteredMeal {
+  strMeal: string;
+  strMealThumb: string;
+  idMeal: string;
+}
+
+export interface FilteredMealResponse {
+  meals: FilteredMeal[] | null;
+}
+
 export interface ProcessedRecipe {
   id: string;
   name: string;
@@ -218,6 +228,34 @@ const fetchMostPopularRecipes = async (): Promise<ProcessedRecipe[]> => {
   return recipes;
 };
 
+const fetchRelatedMeals = async (
+  category: string,
+  currentId: string
+): Promise<ProcessedRecipe[]> => {
+  const response = await fetch(
+    `${BASE_URL}/filter.php?c=${encodeURIComponent(category)}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data: FilteredMealResponse = await response.json();
+
+  if (!data.meals) {
+    return [];
+  }
+
+  // Filter out the current recipe and get up to 3 random related meals
+  const filteredMeals = data.meals
+    .filter((meal) => meal.idMeal !== currentId)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+
+  // Fetch full details for each meal
+  return fetchMultipleMealsById(filteredMeals.map((meal) => meal.idMeal));
+};
+
 // React Query hooks
 export const useSearchMeals = (name: string, enabled: boolean = true) => {
   return useQuery({
@@ -262,6 +300,16 @@ export const useMostPopularMeals = () => {
   return useQuery({
     queryKey: ["meals", "most-popular"],
     queryFn: fetchMostPopularRecipes,
+  });
+};
+
+export const useRelatedMeals = (category: string, currentId: string) => {
+  return useQuery({
+    queryKey: ["meals", "related", category, currentId],
+    queryFn: () => fetchRelatedMeals(category, currentId),
+    enabled: category.length > 0 && currentId.length > 0,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+    gcTime: 1000 * 60 * 60, // 1 hour
   });
 };
 

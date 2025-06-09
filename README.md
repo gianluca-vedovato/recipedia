@@ -150,6 +150,7 @@ src/
 - **Detailed Recipe View**: Full ingredient lists, step-by-step instructions, and cooking information
 - **Favorites System**: Save and manage favorite recipes with persistent storage
 - **Recently Viewed**: Track recently accessed recipes for better user experience
+- **Related Meals**: Improves UX avoiding an interruption of user navigation flow once in recipe detail page.
 - **Smart Error Handling**: Graceful error states and empty search handling
 - **Theming**: Support for light and dark theme modes
 - **Responsive Design**: Works seamlessly across all devices and screen sizes

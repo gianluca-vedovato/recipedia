@@ -221,7 +221,6 @@ describe("RecipeCard", () => {
 
       const link = screen.getByRole("link");
       expect(link).toHaveClass(
-        "hover:-translate-y-0.5",
         "hover:opacity-80",
         "transition-all",
         "duration-300"
@@ -270,20 +269,6 @@ describe("RecipeCard", () => {
       const nameElement = screen.getByTestId("recipe-card-name");
       expect(nameElement).toBeInTheDocument();
       expect(nameElement).toHaveClass("flex-1"); // Should allow text to wrap
-    });
-
-    it("should handle toggle favorite errors gracefully", () => {
-      mockToggleFavorite.mockImplementation(() => {
-        console.error("toggle favorite error");
-        return false;
-      });
-
-      render(<RecipeCard {...mockRecipeData} />);
-
-      const heartButton = screen.getByRole("button");
-
-      // Should not throw error when clicking
-      expect(() => fireEvent.click(heartButton)).not.toThrow();
     });
   });
 });

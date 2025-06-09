@@ -11,7 +11,7 @@ export function RecipeDetailBackButton({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="mb-6">{children}</div>;
+  return <div className="w-full mb-6 flex justify-start">{children}</div>;
 }
 
 export function RecipeDetailContent({

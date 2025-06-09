@@ -2,6 +2,8 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 import { RecipeDetail } from "./recipe-detail";
 import type { ProcessedRecipe } from "@/hooks/useMealDB";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
 
 // Mock TanStack Router
 vi.mock("@tanstack/react-router", () => ({
@@ -62,6 +64,14 @@ const mockRecipeData: ProcessedRecipe = {
   source: "https://example.com/recipe",
 };
 
+// Add a helper to wrap components in QueryClientProvider
+function renderWithClient(ui: React.ReactElement) {
+  const testQueryClient = new QueryClient();
+  return render(
+    <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
+  );
+}
+
 describe("RecipeDetail", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -75,7 +85,7 @@ describe("RecipeDetail", () => {
 
   describe("Data Display", () => {
     it("should display all recipe data correctly", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       expect(screen.getByText("Chocolate Cake")).toBeInTheDocument();
       expect(screen.getByText("Dessert")).toBeInTheDocument();
@@ -86,7 +96,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should display recipe image with correct attributes", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const image = screen.getByAltText("Chocolate Cake");
       expect(image).toHaveAttribute("src", mockRecipeData.image);
@@ -94,7 +104,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should display all ingredients in a list", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       expect(screen.getByText("Ingredients")).toBeInTheDocument();
       expect(screen.getByText("flour")).toBeInTheDocument();
@@ -105,7 +115,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should display instructions with proper formatting", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       expect(screen.getByText("Instructions")).toBeInTheDocument();
       expect(screen.getByText("Step 1: Mix ingredients")).toBeInTheDocument();
@@ -116,7 +126,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should display back to recipes button", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const backButton = screen.getByText("Back to Recipes");
       expect(backButton).toBeInTheDocument();
@@ -124,7 +134,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should display YouTube button when youtube URL is provided", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const youtubeButton = screen.getByText("Watch Video");
       expect(youtubeButton).toBeInTheDocument();
@@ -136,7 +146,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should display source button when source URL is provided", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const sourceButton = screen.getByText("Source");
       expect(sourceButton).toBeInTheDocument();
@@ -149,21 +159,21 @@ describe("RecipeDetail", () => {
 
     it("should not display YouTube button when youtube URL is not provided", () => {
       const recipeWithoutYoutube = { ...mockRecipeData, youtube: undefined };
-      render(<RecipeDetail recipe={recipeWithoutYoutube} />);
+      renderWithClient(<RecipeDetail recipe={recipeWithoutYoutube} />);
 
       expect(screen.queryByText("Watch Video")).not.toBeInTheDocument();
     });
 
     it("should not display source button when source URL is not provided", () => {
       const recipeWithoutSource = { ...mockRecipeData, source: undefined };
-      render(<RecipeDetail recipe={recipeWithoutSource} />);
+      renderWithClient(<RecipeDetail recipe={recipeWithoutSource} />);
 
       expect(screen.queryByText("Source")).not.toBeInTheDocument();
     });
 
     it("should not display tags when none are provided", () => {
       const recipeWithoutTags = { ...mockRecipeData, tags: undefined };
-      render(<RecipeDetail recipe={recipeWithoutTags} />);
+      renderWithClient(<RecipeDetail recipe={recipeWithoutTags} />);
 
       expect(screen.queryByText("sweet")).not.toBeInTheDocument();
       expect(screen.queryByText("chocolate")).not.toBeInTheDocument();
@@ -175,7 +185,7 @@ describe("RecipeDetail", () => {
         ingredients: [],
       };
 
-      render(<RecipeDetail recipe={recipeWithNoIngredients} />);
+      renderWithClient(<RecipeDetail recipe={recipeWithNoIngredients} />);
 
       expect(screen.getByText("Ingredients")).toBeInTheDocument();
       // Should not have any ingredient items
@@ -189,7 +199,7 @@ describe("RecipeDetail", () => {
   describe("Favorites Functionality", () => {
     it("should initialize as not favorite when not in favorites", () => {
       mockIsFavorite.mockReturnValue(false);
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const saveButton = screen.getByText("Save Recipe");
       expect(saveButton).toBeInTheDocument();
@@ -197,14 +207,14 @@ describe("RecipeDetail", () => {
 
     it("should initialize as favorite when in favorites", () => {
       mockIsFavorite.mockReturnValue(true);
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const savedButton = screen.getByText("Saved");
       expect(savedButton).toBeInTheDocument();
     });
 
     it("should call toggleFavorite function when save button is clicked", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const saveButton = screen.getByText("Save Recipe");
 
@@ -216,7 +226,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should call toggleFavorite when save button is clicked", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const saveButton = screen.getByText("Save Recipe");
 
@@ -227,7 +237,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should check favorite state with correct recipe ID", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       expect(mockIsFavorite).toHaveBeenCalledWith("recipe-1");
     });
@@ -236,7 +246,7 @@ describe("RecipeDetail", () => {
       mockIsFavorite.mockImplementation(() => false); // Return false instead of throwing
 
       expect(() => {
-        render(<RecipeDetail recipe={mockRecipeData} />);
+        renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
       }).not.toThrow();
 
       // Should default to not favorite
@@ -249,7 +259,7 @@ describe("RecipeDetail", () => {
         return false;
       });
 
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const saveButton = screen.getByText("Save Recipe");
 
@@ -261,14 +271,14 @@ describe("RecipeDetail", () => {
 
   describe("Image Error Handling", () => {
     it("should display image initially", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const image = screen.getByAltText("Chocolate Cake");
       expect(image).toBeInTheDocument();
     });
 
     it("should show error placeholder when image fails to load", async () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const image = screen.getByAltText("Chocolate Cake");
 
@@ -276,7 +286,9 @@ describe("RecipeDetail", () => {
       fireEvent.error(image);
 
       await waitFor(() => {
-        expect(screen.getByText("Image not available")).toBeInTheDocument();
+        expect(
+          screen.getByTestId("recipe-detail-error-placeholder")
+        ).toBeInTheDocument();
       });
 
       // Original image should not be in document anymore
@@ -292,7 +304,7 @@ describe("RecipeDetail", () => {
           "First paragraph.\n\nSecond paragraph.\n\nThird paragraph.",
       };
 
-      render(<RecipeDetail recipe={recipeWithMultipleParagraphs} />);
+      renderWithClient(<RecipeDetail recipe={recipeWithMultipleParagraphs} />);
 
       expect(screen.getByText("First paragraph.")).toBeInTheDocument();
       expect(screen.getByText("Second paragraph.")).toBeInTheDocument();
@@ -300,7 +312,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should display proper section headings", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       expect(screen.getByText("Ingredients")).toBeInTheDocument();
       expect(screen.getByText("Instructions")).toBeInTheDocument();
@@ -309,14 +321,14 @@ describe("RecipeDetail", () => {
 
   describe("Accessibility", () => {
     it("should have proper alt text for images", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const image = screen.getByAltText("Chocolate Cake");
       expect(image).toBeInTheDocument();
     });
 
     it("should have proper link attributes for external links", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const youtubeLink = screen.getByText("Watch Video").closest("a");
       const sourceLink = screen.getByText("Source").closest("a");
@@ -326,7 +338,7 @@ describe("RecipeDetail", () => {
     });
 
     it("should have proper heading structure", () => {
-      render(<RecipeDetail recipe={mockRecipeData} />);
+      renderWithClient(<RecipeDetail recipe={mockRecipeData} />);
 
       const mainTitle = screen.getByRole("heading", { level: 1 });
       expect(mainTitle).toHaveTextContent("Chocolate Cake");
