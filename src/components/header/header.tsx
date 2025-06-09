@@ -1,4 +1,3 @@
-import { ModeToggle } from "@/components/mode-toggle";
 import { Link } from "@tanstack/react-router";
 import { Heart, Home } from "lucide-react";
 
@@ -27,7 +26,6 @@ export function Header() {
           <Heart className="h-4 w-4" />
           <span className="hidden sm:inline">Favorites</span>
         </Link>
-        <ModeToggle />
       </nav>
     </header>
   );

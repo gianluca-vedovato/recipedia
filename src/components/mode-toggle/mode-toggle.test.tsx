@@ -1,19 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ModeToggle } from "./mode-toggle";
 import { ThemeProvider } from "../theme-provider";
 
 // Mock the useTheme hook
 const mockSetTheme = vi.fn();
+
 vi.mock("../theme-provider", async () => {
   const actual = await vi.importActual("../theme-provider");
   return {
     ...actual,
-    useTheme: () => ({
+    useTheme: vi.fn(() => ({
       theme: "system",
       setTheme: mockSetTheme,
-    }),
+    })),
   };
 });
 
@@ -31,141 +32,55 @@ describe("ModeToggle", () => {
     vi.clearAllMocks();
   });
 
-  it("renders the theme toggle button", () => {
+  it("renders all three theme toggle buttons", () => {
     renderModeToggle();
 
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-    expect(toggleButton).toBeInTheDocument();
+    const buttons = screen.getAllByRole("button");
+    expect(buttons).toHaveLength(3);
   });
 
-  it("has correct accessibility attributes", () => {
-    renderModeToggle();
-
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-    expect(toggleButton).toHaveAttribute("aria-haspopup", "menu");
-    expect(toggleButton).toHaveAttribute("aria-expanded", "false");
-  });
-
-  it("displays sun and moon icons", () => {
+  it("displays sun, moon, and monitor icons", () => {
     renderModeToggle();
 
     const sunIcon = document.querySelector(".lucide-sun");
     const moonIcon = document.querySelector(".lucide-moon");
+    const monitorIcon = document.querySelector(".lucide-monitor");
 
     expect(sunIcon).toBeInTheDocument();
     expect(moonIcon).toBeInTheDocument();
+    expect(monitorIcon).toBeInTheDocument();
   });
 
-  it("opens dropdown menu when clicked", async () => {
+  it("calls setTheme with 'light' when sun button is clicked", async () => {
     const user = userEvent.setup();
     renderModeToggle();
 
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-    await user.click(toggleButton);
-
-    // Check if dropdown menu items are visible
-    expect(screen.getByText("Light")).toBeInTheDocument();
-    expect(screen.getByText("Dark")).toBeInTheDocument();
-    expect(screen.getByText("System")).toBeInTheDocument();
-  });
-
-  it("calls setTheme with 'light' when Light option is clicked", async () => {
-    const user = userEvent.setup();
-    renderModeToggle();
-
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-    await user.click(toggleButton);
-
-    const lightOption = screen.getByText("Light");
-    await user.click(lightOption);
+    const buttons = screen.getAllByRole("button");
+    const sunButton = buttons[0]; // First button is sun/light
+    await user.click(sunButton);
 
     expect(mockSetTheme).toHaveBeenCalledWith("light");
   });
 
-  it("calls setTheme with 'dark' when Dark option is clicked", async () => {
+  it("calls setTheme with 'dark' when moon button is clicked", async () => {
     const user = userEvent.setup();
     renderModeToggle();
 
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-    await user.click(toggleButton);
-
-    const darkOption = screen.getByText("Dark");
-    await user.click(darkOption);
+    const buttons = screen.getAllByRole("button");
+    const moonButton = buttons[1]; // Second button is moon/dark
+    await user.click(moonButton);
 
     expect(mockSetTheme).toHaveBeenCalledWith("dark");
   });
 
-  it("calls setTheme with 'system' when System option is clicked", async () => {
+  it("calls setTheme with 'system' when monitor button is clicked", async () => {
     const user = userEvent.setup();
     renderModeToggle();
 
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-    await user.click(toggleButton);
-
-    const systemOption = screen.getByText("System");
-    await user.click(systemOption);
+    const buttons = screen.getAllByRole("button");
+    const monitorButton = buttons[2]; // Third button is monitor/system
+    await user.click(monitorButton);
 
     expect(mockSetTheme).toHaveBeenCalledWith("system");
-  });
-
-  it("closes dropdown menu after selecting an option", async () => {
-    const user = userEvent.setup();
-    renderModeToggle();
-
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-    await user.click(toggleButton);
-
-    // Menu should be open
-    expect(screen.getByText("Light")).toBeInTheDocument();
-
-    const lightOption = screen.getByText("Light");
-    await user.click(lightOption);
-
-    // Wait for menu to close
-    await waitFor(() => {
-      expect(screen.queryByText("Light")).not.toBeInTheDocument();
-    });
-  });
-
-  it("supports keyboard navigation", async () => {
-    const user = userEvent.setup();
-    renderModeToggle();
-
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-
-    // Focus the button and press Enter to open
-    toggleButton.focus();
-    await user.keyboard("{Enter}");
-
-    expect(screen.getByText("Light")).toBeInTheDocument();
-
-    // Navigate with arrow keys and select with Enter
-    await user.keyboard("{ArrowDown}");
-    await user.keyboard("{Enter}");
-
-    expect(mockSetTheme).toHaveBeenCalled();
-  });
-
-  // Note: Testing "click outside to close" behavior is complex with Radix UI
-  // as it involves internal focus management and DOM manipulation.
-  // The Escape key test above covers the main dismissal functionality.
-
-  it("closes dropdown when pressing Escape", async () => {
-    const user = userEvent.setup();
-    renderModeToggle();
-
-    const toggleButton = screen.getByRole("button", { name: /toggle theme/i });
-    await user.click(toggleButton);
-
-    // Menu should be open
-    expect(screen.getByText("Light")).toBeInTheDocument();
-
-    // Press Escape
-    await user.keyboard("{Escape}");
-
-    // Wait for menu to close
-    await waitFor(() => {
-      expect(screen.queryByText("Light")).not.toBeInTheDocument();
-    });
   });
 });
