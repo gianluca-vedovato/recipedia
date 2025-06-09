@@ -87,7 +87,7 @@ describe("RecipesGrid", () => {
     });
 
     it("should render grid container with correct classes", () => {
-      const { container } = render(
+      render(
         <RecipesGrid
           recipes={[]}
           loading={true}
@@ -96,7 +96,7 @@ describe("RecipesGrid", () => {
         />
       );
 
-      const gridContainer = container.querySelector("div");
+      const gridContainer = screen.getByTestId("recipes-grid-container");
       expect(gridContainer).toHaveClass(
         "grid",
         "grid-cols-1",
@@ -406,7 +406,7 @@ describe("RecipesGrid", () => {
 
   describe("Grid Layout", () => {
     it("should maintain grid structure across all states", () => {
-      const { container, rerender } = render(
+      const { rerender } = render(
         <RecipesGrid
           recipes={[]}
           loading={true}
@@ -415,7 +415,7 @@ describe("RecipesGrid", () => {
         />
       );
 
-      let gridContainer = container.querySelector("div");
+      let gridContainer = screen.getByTestId("recipes-grid-container");
       expect(gridContainer).toHaveClass(
         "grid",
         "grid-cols-1",
@@ -434,7 +434,7 @@ describe("RecipesGrid", () => {
         />
       );
 
-      gridContainer = container.querySelector("div");
+      gridContainer = screen.getByTestId("recipes-grid-container");
       expect(gridContainer).toHaveClass(
         "grid",
         "grid-cols-1",
@@ -453,7 +453,7 @@ describe("RecipesGrid", () => {
         />
       );
 
-      gridContainer = container.querySelector("div");
+      gridContainer = screen.getByTestId("recipes-grid-container");
       expect(gridContainer).toHaveClass(
         "grid",
         "grid-cols-1",

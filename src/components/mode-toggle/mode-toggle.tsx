@@ -11,7 +11,9 @@ export function ModeToggle() {
     <div className="flex items-center border border-border rounded-full p-1.5">
       <Button
         variant="ghost"
+        size="icon"
         onClick={() => setTheme("light")}
+        data-testid="mode-toggle-light-button"
         className={cn(
           "rounded-full cursor-pointer",
           theme === "light"
@@ -19,11 +21,13 @@ export function ModeToggle() {
             : "dark:text-neutral-600 text-neutral-400"
         )}
       >
-        <Sun />
+        <Sun className="h-5 w-5" data-testid="mode-toggle-sun-icon" />
       </Button>
       <Button
         variant="ghost"
+        size="icon"
         onClick={() => setTheme("dark")}
+        data-testid="mode-toggle-dark-button"
         className={cn(
           "rounded-full cursor-pointer",
           theme === "dark"
@@ -31,11 +35,13 @@ export function ModeToggle() {
             : "dark:text-neutral-600 text-neutral-400"
         )}
       >
-        <Moon />
+        <Moon className="h-5 w-5" data-testid="mode-toggle-moon-icon" />
       </Button>
       <Button
         variant="ghost"
+        size="icon"
         onClick={() => setTheme("system")}
+        data-testid="mode-toggle-system-button"
         className={cn(
           "rounded-full cursor-pointer",
           theme === "system"
@@ -43,7 +49,7 @@ export function ModeToggle() {
             : "dark:text-neutral-600 text-neutral-400"
         )}
       >
-        <Monitor />
+        <Monitor className="h-5 w-5" data-testid="mode-toggle-monitor-icon" />
       </Button>
     </div>
   );

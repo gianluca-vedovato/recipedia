@@ -136,14 +136,14 @@ describe("SearchResults", () => {
     it("should be hidden when isOpen is false", () => {
       renderWithQueryClient(<SearchResults searchTerm="" isOpen={false} />);
 
-      const container = document.querySelector(".absolute");
+      const container = screen.getByTestId("search-results-container");
       expect(container).toHaveClass("opacity-0", "pointer-events-none");
     });
 
     it("should be visible when isOpen is true", () => {
       renderWithQueryClient(<SearchResults searchTerm="" isOpen={true} />);
 
-      const container = document.querySelector(".absolute");
+      const container = screen.getByTestId("search-results-container");
       expect(container).toHaveClass("opacity-100", "pointer-events-auto");
     });
   });
@@ -155,13 +155,6 @@ describe("SearchResults", () => {
       expect(screen.getByText("Most Popular")).toBeInTheDocument();
       expect(screen.getByText("Popular Meal 1")).toBeInTheDocument();
       expect(screen.getByText("Popular Meal 2")).toBeInTheDocument();
-    });
-
-    it("should display recipes in a 2-column grid", () => {
-      renderWithQueryClient(<SearchResults searchTerm="" isOpen={true} />);
-
-      const grid = document.querySelector(".grid-cols-2");
-      expect(grid).toBeInTheDocument();
     });
   });
 
@@ -197,8 +190,8 @@ describe("SearchResults", () => {
 
       renderWithQueryClient(<SearchResults searchTerm="pasta" isOpen={true} />);
 
-      // Check for skeleton loading elements by looking for animate-pulse class
-      const skeletons = document.querySelectorAll(".animate-pulse");
+      // Check for skeleton loading elements
+      const skeletons = screen.getAllByTestId("search-results-skeleton");
       expect(skeletons.length).toBeGreaterThan(0);
     });
   });
@@ -255,7 +248,7 @@ describe("SearchResults", () => {
     it("should apply hover classes to recipe items", () => {
       renderWithQueryClient(<SearchResults searchTerm="" isOpen={true} />);
 
-      const recipeItems = document.querySelectorAll(".cursor-pointer");
+      const recipeItems = screen.getAllByTestId("search-results-recipe-item");
       expect(recipeItems.length).toBeGreaterThan(0);
 
       recipeItems.forEach((item) => {

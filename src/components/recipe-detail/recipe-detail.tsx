@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { Heart, ExternalLink, Youtube, ArrowLeft } from "lucide-react";
+import { Heart, ExternalLink, SquarePlay, ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { ProcessedRecipe } from "@/hooks/useMealDB";
 import {
@@ -23,6 +23,7 @@ import {
 } from "./recipe-detail.layout";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useStorage } from "@/hooks/useLocalStorage";
+import { cn } from "@/lib/utils";
 
 type RecipeDetailProps = {
   recipe: ProcessedRecipe;
@@ -94,6 +95,7 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
                 alt={recipe.name}
                 className="w-full h-full object-cover"
                 onError={() => setImageError(true)}
+                data-testid="recipe-detail-img"
               />
             )}
           </RecipeDetailImage>
@@ -104,9 +106,14 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               variant="outline"
               size="sm"
               onClick={() => toggleFavorite(recipe.id)}
+              data-testid="recipe-detail-favorite-button"
             >
               <Heart
-                className={`mr-2 h-4 w-4 ${isFavorite ? "fill-red-500 text-red-500" : ""}`}
+                className={cn(
+                  "mr-2 h-4 w-4",
+                  isFavorite && "fill-red-500 stroke-red-500"
+                )}
+                data-testid="recipe-detail-heart-icon"
               />
               {isFavorite ? "Saved" : "Save Recipe"}
             </Button>
@@ -116,8 +123,9 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
                   href={recipe.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-testid="recipe-detail-video-link"
                 >
-                  <Youtube className="mr-2 h-4 w-4" />
+                  <SquarePlay className="mr-2 h-4 w-4" />
                   Watch Video
                 </a>
               </Button>
@@ -158,7 +166,10 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
             <RecipeDetailSectionTitle>Ingredients</RecipeDetailSectionTitle>
             <RecipeDetailIngredientsList>
               {recipe.ingredients.map((ingredient, index) => (
-                <RecipeDetailIngredientItem key={index}>
+                <RecipeDetailIngredientItem
+                  key={index}
+                  data-testid="recipe-detail-ingredient-item"
+                >
                   {ingredient}
                 </RecipeDetailIngredientItem>
               ))}
@@ -172,7 +183,11 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               {recipe.instructions.split(/\r?\n/).map(
                 (paragraph, index) =>
                   paragraph.trim() && (
-                    <p key={index} className="mb-3">
+                    <p
+                      key={index}
+                      className="mb-3"
+                      data-testid="recipe-detail-instruction-item"
+                    >
                       {paragraph}
                     </p>
                   )

@@ -516,10 +516,10 @@ describe("FavoritesPage", () => {
         error: null,
       });
 
-      const { container } = renderWithQueryClient(<FavoritesPage />);
+      renderWithQueryClient(<FavoritesPage />);
 
       // Check main container has correct classes
-      const mainContainer = container.querySelector(".container");
+      const mainContainer = screen.getByTestId("favorites-page-container");
       expect(mainContainer).toHaveClass(
         "container",
         "py-6",

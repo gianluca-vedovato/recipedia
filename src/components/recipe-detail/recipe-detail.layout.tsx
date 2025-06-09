@@ -43,7 +43,7 @@ export function RecipeDetailActions({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="flex gap-2">{children}</div>;
+  return <div className="flex flex-col lg:flex-row gap-2">{children}</div>;
 }
 
 export function RecipeDetailInfoSection({
@@ -95,7 +95,11 @@ export function RecipeDetailIngredientsList({
 }: {
   children: React.ReactNode;
 }) {
-  return <ul className="space-y-2">{children}</ul>;
+  return (
+    <ul className="space-y-2" data-testid="recipe-detail-ingredients-list">
+      {children}
+    </ul>
+  );
 }
 
 export function RecipeDetailIngredientItem({

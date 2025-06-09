@@ -85,7 +85,7 @@ export function SearchInput({ defaultValue }: { defaultValue?: string }) {
       </div>
       <div
         className={cn(
-          "bg-black/20 fixed inset-0 z-40 opacity-0 transition-opacity duration-300 pointer-events-none",
+          "bg-black/20 dark:bg-black/60 fixed inset-0 z-40 opacity-0 transition-opacity duration-300 pointer-events-none",
           open && "opacity-100 pointer-events-auto"
         )}
         onClick={() => setOpen(false)}

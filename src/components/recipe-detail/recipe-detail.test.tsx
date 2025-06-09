@@ -168,6 +168,22 @@ describe("RecipeDetail", () => {
       expect(screen.queryByText("sweet")).not.toBeInTheDocument();
       expect(screen.queryByText("chocolate")).not.toBeInTheDocument();
     });
+
+    it("should handle empty ingredient list", () => {
+      const recipeWithNoIngredients = {
+        ...mockRecipeData,
+        ingredients: [],
+      };
+
+      render(<RecipeDetail recipe={recipeWithNoIngredients} />);
+
+      expect(screen.getByText("Ingredients")).toBeInTheDocument();
+      // Should not have any ingredient items
+      const ingredientsList = screen.getByTestId(
+        "recipe-detail-ingredients-list"
+      );
+      expect(ingredientsList.children).toHaveLength(0);
+    });
   });
 
   describe("Favorites Functionality", () => {
@@ -281,20 +297,6 @@ describe("RecipeDetail", () => {
       expect(screen.getByText("First paragraph.")).toBeInTheDocument();
       expect(screen.getByText("Second paragraph.")).toBeInTheDocument();
       expect(screen.getByText("Third paragraph.")).toBeInTheDocument();
-    });
-
-    it("should handle empty ingredient list", () => {
-      const recipeWithNoIngredients = {
-        ...mockRecipeData,
-        ingredients: [],
-      };
-
-      render(<RecipeDetail recipe={recipeWithNoIngredients} />);
-
-      expect(screen.getByText("Ingredients")).toBeInTheDocument();
-      // Should not have any ingredient items - find the ul element
-      const ingredientsList = document.querySelector('ul[class*="space-y-2"]');
-      expect(ingredientsList?.children).toHaveLength(0);
     });
 
     it("should display proper section headings", () => {

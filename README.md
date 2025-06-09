@@ -145,10 +145,12 @@ src/
 
 ## 📝 Key Features
 
-- **Recipe Search**: Search recipes by name with instant results
+- **Recipe Search**: Search recipes by name and keywords with instant results
 - **Recipe Discovery**: Random recipe suggestions in homepage
-- **Favorites System**: Save and manage favorite recipes
-- **Recently Viewed**: Track recently accessed recipes for better UX in search
-- **Theming**: Add support for light and dark theme
-- **Responsive Design**: Works seamlessly on all devices
+- **Detailed Recipe View**: Full ingredient lists, step-by-step instructions, and cooking information
+- **Favorites System**: Save and manage favorite recipes with persistent storage
+- **Recently Viewed**: Track recently accessed recipes for better user experience
+- **Smart Error Handling**: Graceful error states and empty search handling
+- **Theming**: Support for light and dark theme modes
+- **Responsive Design**: Works seamlessly across all devices and screen sizes
 - **Accessibility**: Full keyboard navigation and screen reader support

@@ -8,6 +8,7 @@ import {
   RecipeCardWrapper,
 } from "./recipe-card.layout";
 import { useFavorites } from "@/hooks/useFavorites";
+import { cn } from "@/lib/utils";
 
 type RecipeCardProps = {
   id: string;
@@ -30,6 +31,10 @@ export function RecipeCard({
 
   const [imageError, setImageError] = useState(false);
 
+  const onToggleFavorite = () => {
+    toggleFavorite(id);
+  };
+
   return (
     <Link
       to="/recipe/$id"
@@ -39,34 +44,52 @@ export function RecipeCard({
       <RecipeCardWrapper>
         <RecipeCardImage>
           {imageError ? (
-            <div className="w-full h-48 bg-orange-200 flex items-center justify-center text-gray-400"></div>
+            <div
+              className="w-full h-full bg-orange-200 flex items-center justify-center text-gray-400"
+              data-testid="recipe-card-error-placeholder"
+            >
+              <span>Image not available</span>
+            </div>
           ) : (
             <img
               src={image}
               alt={name}
               className="w-full h-48 object-cover"
               onError={() => setImageError(true)}
+              data-testid="recipe-card-img"
             />
           )}
           <button
             className="absolute top-2 right-2"
             onClick={(e) => {
               e.preventDefault();
-              toggleFavorite(id);
+              onToggleFavorite();
             }}
+            data-testid="recipe-card-favorite-button"
           >
             <Heart
-              fill={isFavorite ? "red" : "transparent"}
-              className="transition-[colors, transform] transform cursor-pointer duration-200 hover:scale-110 text-white"
+              className={cn(
+                "lucide lucide-heart transition-[colors, transform] transform cursor-pointer duration-200 hover:scale-110 text-white",
+                isFavorite && "fill-red-500 stroke-red-500"
+              )}
+              data-testid="recipe-card-heart-icon"
             />
           </button>
         </RecipeCardImage>
         <RecipeCardContent>
           <div className="flex justify-between items-start">
-            <h3 className="text-lg font-bold flex-1">{name}</h3>
-            <Badge variant="default">{category}</Badge>
+            <h3
+              className="text-lg font-bold flex-1"
+              data-testid="recipe-card-name"
+            >
+              {name}
+            </h3>
+            <Badge data-testid="recipe-card-badge">{category}</Badge>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p
+            className="text-sm text-muted-foreground"
+            data-testid="recipe-card-ingredients"
+          >
             {ingredients.join(", ")}
           </p>
         </RecipeCardContent>

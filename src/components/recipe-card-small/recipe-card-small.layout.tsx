@@ -3,7 +3,14 @@ export function RecipeCardSmallWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="flex gap-2 items-start">{children}</div>;
+  return (
+    <div
+      data-testid="recipe-card-small-wrapper"
+      className="flex gap-2 items-start"
+    >
+      {children}
+    </div>
+  );
 }
 
 export function RecipeCardSmallImage({
@@ -11,7 +18,14 @@ export function RecipeCardSmallImage({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="w-12 h-12 rounded-md overflow-hidden">{children}</div>;
+  return (
+    <div
+      data-testid="recipe-card-small-image"
+      className="w-16 h-16 lg:w-12 lg:h-12 rounded-md overflow-hidden"
+    >
+      {children}
+    </div>
+  );
 }
 
 export function RecipeCardSmallContent({
@@ -19,5 +33,12 @@ export function RecipeCardSmallContent({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="flex flex-col gap-1">{children}</div>;
+  return (
+    <div
+      data-testid="recipe-card-small-content"
+      className="flex flex-col gap-1 flex-1"
+    >
+      {children}
+    </div>
+  );
 }

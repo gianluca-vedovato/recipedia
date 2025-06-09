@@ -42,9 +42,9 @@ describe("ModeToggle", () => {
   it("displays sun, moon, and monitor icons", () => {
     renderModeToggle();
 
-    const sunIcon = document.querySelector(".lucide-sun");
-    const moonIcon = document.querySelector(".lucide-moon");
-    const monitorIcon = document.querySelector(".lucide-monitor");
+    const sunIcon = screen.getByTestId("mode-toggle-sun-icon");
+    const moonIcon = screen.getByTestId("mode-toggle-moon-icon");
+    const monitorIcon = screen.getByTestId("mode-toggle-monitor-icon");
 
     expect(sunIcon).toBeInTheDocument();
     expect(moonIcon).toBeInTheDocument();
