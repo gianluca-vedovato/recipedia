@@ -8,7 +8,6 @@ import {
   RecipeCardWrapper,
 } from "./recipe-card.layout";
 import { useFavorites } from "@/hooks/useFavorites";
-import { cn } from "@/lib/utils";
 
 type RecipeCardProps = {
   id: string;
@@ -68,10 +67,8 @@ export function RecipeCard({
             data-testid="recipe-card-favorite-button"
           >
             <Heart
-              className={cn(
-                "lucide lucide-heart transition-[colors, transform] transform cursor-pointer duration-200 hover:scale-110 text-white",
-                isFavorite && "fill-red-500 stroke-red-500"
-              )}
+              className="lucide lucide-heart transition-[colors, transform] transform cursor-pointer duration-200 hover:scale-110 text-white"
+              fill={isFavorite ? "red" : "rgba(0,0,0,0.5)"}
               data-testid="recipe-card-heart-icon"
             />
           </button>

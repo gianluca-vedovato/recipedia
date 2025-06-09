@@ -105,8 +105,7 @@ describe("RecipeCard", () => {
       render(<RecipeCard {...mockRecipeData} />);
 
       const heartIcon = screen.getByTestId("recipe-card-heart-icon");
-      expect(heartIcon).toHaveClass("text-white");
-      expect(heartIcon).not.toHaveClass("fill-red-500", "stroke-red-500");
+      expect(heartIcon).toHaveAttribute("fill", "rgba(0,0,0,0.5)");
     });
 
     it("should initialize as favorite when in favorites", () => {
@@ -114,8 +113,7 @@ describe("RecipeCard", () => {
       render(<RecipeCard {...mockRecipeData} />);
 
       const heartIcon = screen.getByTestId("recipe-card-heart-icon");
-      expect(heartIcon).toHaveClass("text-white");
-      expect(heartIcon).toHaveClass("fill-red-500", "stroke-red-500");
+      expect(heartIcon).toHaveAttribute("fill", "red");
     });
 
     it("should call correct functions when toggling favorite state", () => {
