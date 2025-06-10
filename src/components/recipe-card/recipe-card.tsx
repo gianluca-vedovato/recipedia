@@ -38,7 +38,7 @@ export function RecipeCard({
     <Link
       to="/recipe/$id"
       params={{ id }}
-      className="hover:opacity-80 transition-all duration-300"
+      className="hover:opacity-80 transition-all duration-300 flex justify-center"
     >
       <RecipeCardWrapper>
         <RecipeCardImage>

@@ -1,6 +1,7 @@
 import type { ProcessedRecipe } from "@/hooks/useMealDB";
 import { RecipeCard } from "../recipe-card/recipe-card";
 import { RecipeCardSkeleton } from "../recipe-card/recipe-card.skeleton";
+import { ComponentErrorBoundary } from "../error-boundary";
 import { Button } from "../ui/button";
 import { useState } from "react";
 
@@ -43,7 +44,11 @@ export function RecipesGrid({
     if (recipes.length === 0) {
       return <p>No recipes found.</p>;
     }
-    return recipes.map((recipe) => <RecipeCard key={recipe.id} {...recipe} />);
+    return recipes.map((recipe) => (
+      <ComponentErrorBoundary key={recipe.id}>
+        <RecipeCard {...recipe} />
+      </ComponentErrorBoundary>
+    ));
   };
 
   return (

@@ -124,6 +124,26 @@ The `useLocalStorage` hook (`src/hooks/useLocalStorage.ts`) provides:
 - **Smart cache invalidation**: Targeted cache updates for different data types
 - **Background updates**: Stale-while-revalidate pattern for better UX
 
+### Error Boundary Implementation
+
+The application implements a comprehensive **3-tier error boundary system** for robust error handling:
+
+- **Global Error Boundary**: Catches application-wide errors and provides full-page error recovery
+- **Page Error Boundary**: Isolates route-level errors to prevent full app crashes
+- **Component Error Boundary**: Wraps individual components (like recipe cards) for granular error isolation
+- **Class-based implementation**: Uses React class components (required for error boundaries) with modern TypeScript
+
+```typescript
+// Usage examples:
+<GlobalErrorBoundary>        // App-level protection
+  <PageErrorBoundary>        // Route-level protection
+    <ComponentErrorBoundary> // Component-level protection
+      <RecipeCard {...props} />
+    </ComponentErrorBoundary>
+  </PageErrorBoundary>
+</GlobalErrorBoundary>
+```
+
 ### Component Structure
 
 - **Modular design**: Components are organized by feature and reusability
@@ -135,6 +155,9 @@ The `useLocalStorage` hook (`src/hooks/useLocalStorage.ts`) provides:
 ```
 src/
 ├── components/          # Reusable UI components
+│   ├── error-boundary/ # Error boundary system
+│   ├── ui/             # shadcn/ui components
+│   └── ...            # Feature-specific components
 ├── hooks/              # Custom React hooks
 │   ├── useMealDB.ts    # API hooks and caching
 │   ├── useLocalStorage.ts # Local storage with fallback

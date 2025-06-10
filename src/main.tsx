@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { GlobalErrorBoundary } from "./components/error-boundary";
 
 import { routeTree } from "./routeTree.gen";
 import "./index.css";
@@ -33,9 +34,16 @@ declare module "@tanstack/react-router" {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <GlobalErrorBoundary
+      showDetails={process.env.NODE_ENV === "development"}
+      onError={(error, errorInfo) => {
+        console.error("Global error caught:", error, errorInfo);
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </GlobalErrorBoundary>
   </StrictMode>
 );
