@@ -1,5 +1,5 @@
 export function RecipeCardWrapper({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-col gap-4 max-w-sm">{children}</div>;
+  return <div className="flex flex-col gap-4 max-w-sm w-full">{children}</div>;
 }
 
 export function RecipeCardImage({ children }: { children: React.ReactNode }) {

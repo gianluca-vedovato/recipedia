@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation } from "@tanstack/react-router";
 
 interface PageTransitionProps {
@@ -7,31 +7,19 @@ interface PageTransitionProps {
 
 export function PageTransition({ children }: PageTransitionProps) {
   const location = useLocation();
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    // Trigger transition effect
-    setIsTransitioning(true);
-
-    // Scroll to top when route changes
-    window.scrollTo(0, 0);
-
-    // Reset transition state after animation completes
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
+    // Use View Transitions API if available (modern browsers)
+    if ("startViewTransition" in document) {
+      document.startViewTransition(() => {
+        // Scroll to top when route changes
+        window.scrollTo(0, 0);
+      });
+    } else {
+      // Fallback for older browsers - just scroll
+      window.scrollTo(0, 0);
+    }
   }, [location.pathname]);
 
-  return (
-    <div className="page-transition-container">
-      <div
-        key={location.pathname}
-        className={`page-content ${isTransitioning ? "animate-fade-in" : ""}`}
-      >
-        {children}
-      </div>
-    </div>
-  );
+  return <div className="page-transition-container">{children}</div>;
 }
