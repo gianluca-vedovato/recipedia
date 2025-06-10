@@ -269,7 +269,7 @@ describe("ErrorBoundary", () => {
 
     beforeEach(() => {
       delete (window as unknown as { location: unknown }).location;
-      window.location = {
+      (window as unknown as { location: Location }).location = {
         ...originalLocation,
         reload: mockReload,
         href: "",
@@ -277,7 +277,7 @@ describe("ErrorBoundary", () => {
     });
 
     afterEach(() => {
-      window.location = originalLocation;
+      (window as unknown as { location: Location }).location = originalLocation;
     });
 
     it("should reload page when reload button is clicked", () => {
