@@ -1,6 +1,7 @@
 import { useFavorites } from "@/hooks/useFavorites";
 import { useMultipleMealsById } from "@/hooks/useMealDB";
 import { RecipesGrid } from "@/components/recipes-grid";
+import { ComponentErrorBoundary } from "../error-boundary";
 import { Link } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 
@@ -38,11 +39,13 @@ export function FavoritesPage() {
         </div>
       ) : (
         <div className="w-full">
-          <RecipesGrid
-            recipes={favorites || []}
-            loading={isLoading}
-            error={error ? new Error("Failed to load some favorites") : null}
-          />
+          <ComponentErrorBoundary>
+            <RecipesGrid
+              recipes={favorites || []}
+              loading={isLoading}
+              error={error ? new Error("Failed to load some favorites") : null}
+            />
+          </ComponentErrorBoundary>
         </div>
       )}
     </div>

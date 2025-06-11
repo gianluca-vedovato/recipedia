@@ -1,5 +1,6 @@
 import { useMostPopularMeals, useSearchMeals } from "@/hooks/useMealDB";
 import { RecipeCardSmall, RecipeCardSmallSkeleton } from "../recipe-card-small";
+import { ComponentErrorBoundary } from "../error-boundary";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { useStorage } from "@/hooks/useLocalStorage";
@@ -29,30 +30,32 @@ export function SearchResults({ searchTerm, isOpen }: SearchResultsProps) {
   const renderList = useMemo(() => {
     if (!searchTerm) {
       return mostPopularMeals?.map((meal) => (
-        <div
-          key={meal.id}
-          className="cursor-pointer hover:bg-accent rounded-md p-2"
-          data-testid="search-results-recipe-item"
-        >
-          <RecipeCardSmall {...meal} />
-        </div>
+        <ComponentErrorBoundary key={meal.id}>
+          <div
+            className="cursor-pointer hover:bg-accent rounded-md p-2"
+            data-testid="search-results-recipe-item"
+          >
+            <RecipeCardSmall {...meal} />
+          </div>
+        </ComponentErrorBoundary>
       ));
     }
 
     if (searchResults && searchResults.length > 0) {
       return searchResults.map((meal) => (
-        <div
-          key={meal.id}
-          className="cursor-pointer hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground rounded-md p-2"
-          data-testid="search-results-recipe-item"
-        >
-          <RecipeCardSmall
-            {...meal}
-            isRecentlyViewed={recentlyViewed
-              .map((m: { id: string }) => m.id)
-              .includes(meal.id)}
-          />
-        </div>
+        <ComponentErrorBoundary key={meal.id}>
+          <div
+            className="cursor-pointer hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground rounded-md p-2"
+            data-testid="search-results-recipe-item"
+          >
+            <RecipeCardSmall
+              {...meal}
+              isRecentlyViewed={recentlyViewed
+                .map((m: { id: string }) => m.id)
+                .includes(meal.id)}
+            />
+          </div>
+        </ComponentErrorBoundary>
       ));
     }
 
@@ -90,12 +93,13 @@ export function SearchResults({ searchTerm, isOpen }: SearchResultsProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
             {recentlyViewed.map(
               (meal: { id: string; name: string; image: string }) => (
-                <div
-                  key={meal.id}
-                  className="cursor-pointer hover:bg-accent rounded-md p-2"
-                >
-                  <RecipeCardSmall {...meal} />
-                </div>
+                <ComponentErrorBoundary key={meal.id}>
+                  <div
+                    className="cursor-pointer hover:bg-accent rounded-md p-2"
+                  >
+                    <RecipeCardSmall {...meal} />
+                  </div>
+                </ComponentErrorBoundary>
               )
             )}
           </div>

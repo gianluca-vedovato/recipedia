@@ -25,6 +25,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { useStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils";
 import { RecipesGrid } from "@/components/recipes-grid";
+import { ComponentErrorBoundary } from "../error-boundary";
 
 type RecipeDetailProps = {
   recipe: ProcessedRecipe;
@@ -209,11 +210,13 @@ export function RecipeDetail({ recipe }: RecipeDetailProps) {
               You might also like
             </h2>
           </div>
-          <RecipesGrid
-            recipes={relatedMeals}
-            loading={relatedAreLoading}
-            error={null}
-          />
+          <ComponentErrorBoundary>
+            <RecipesGrid
+              recipes={relatedMeals}
+              loading={relatedAreLoading}
+              error={null}
+            />
+          </ComponentErrorBoundary>
         </div>
       )}
     </RecipeDetailWrapper>

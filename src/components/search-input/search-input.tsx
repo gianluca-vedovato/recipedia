@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { SearchResults } from "./search-results";
+import { ComponentErrorBoundary } from "../error-boundary";
 import { cn } from "@/lib/utils";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 
@@ -80,7 +81,9 @@ export function SearchInput({ defaultValue }: { defaultValue?: string }) {
               <SearchIcon />
             </Button>
           </form>
-          <SearchResults searchTerm={debouncedSearchTerm} isOpen={open} />
+          <ComponentErrorBoundary>
+            <SearchResults searchTerm={debouncedSearchTerm} isOpen={open} />
+          </ComponentErrorBoundary>
         </div>
       </div>
       <div

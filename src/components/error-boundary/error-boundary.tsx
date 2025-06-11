@@ -64,8 +64,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   private reportError = (error: Error, errorInfo: ErrorInfo) => {
-    // This is where you'd integrate with error reporting services
-    // Examples: Sentry, Bugsnag, LogRocket, etc.
+    // Integration with error reporting services
 
     const errorReport = {
       message: error.message,
@@ -76,10 +75,6 @@ export class ErrorBoundary extends Component<Props, State> {
       url: window.location.href,
       level: this.props.level || "component",
     };
-
-    // Example integration points:
-    // Sentry.captureException(error, { extra: errorReport });
-    // window.gtag?.('event', 'exception', { description: error.message });
 
     console.warn("Error reported:", errorReport);
   };

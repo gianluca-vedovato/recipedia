@@ -1,5 +1,6 @@
 import { SearchInput } from "@/components/search-input";
 import { RecipesGrid } from "@/components/recipes-grid";
+import { ComponentErrorBoundary } from "@/components/error-boundary";
 import { useSearchMeals } from "@/hooks/useMealDB";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
@@ -75,12 +76,14 @@ export function SearchResults({ query }: SearchResultsProps) {
         </SearchResultsEmptyState>
       ) : (
         <SearchResultsContent>
-          <RecipesGrid
-            recipes={recipes || []}
-            loading={isLoading}
-            error={error}
-            retry={refetch}
-          />
+          <ComponentErrorBoundary>
+            <RecipesGrid
+              recipes={recipes || []}
+              loading={isLoading}
+              error={error}
+              retry={refetch}
+            />
+          </ComponentErrorBoundary>
         </SearchResultsContent>
       )}
     </SearchResultsWrapper>
